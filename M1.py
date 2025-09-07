@@ -91,7 +91,7 @@ By using the App, you acknowledge that you understand these risks and agree to u
 For personalized financial guidance, please consult a licensed financial advisor.
 """)
 
-accept = st.checkbox("✅ I have read and accept the disclaimer")
+accept = st.checkbox(" I have read and accept the disclaimer")
 
 if not accept:
     st.warning("⚠️ Please accept the disclaimer to use the app.")
