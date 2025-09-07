@@ -1,11 +1,11 @@
 # app.py
 """
-SPIDER — Single-page iOS-style Dark Streamlit app (mobile responsive)
+SPIDER — Single-page iOS-style Dark Streamlit app
 - Yahoo Finance data
 - Indicators: MA20, MA50, EMA, RSI, MACD, Bollinger Bands
 - Forecasts: Prophet, ARIMA, Random Forest, LSTM
 - All models run in one click
-- Single-file Streamlit app, optimized for mobile and desktop
+- Dark iOS-style UI, single centered page
 """
 
 import warnings
@@ -20,7 +20,7 @@ from plotly.subplots import make_subplots
 from datetime import timedelta
 
 # --------------------------
-# ML libraries (optional)
+# ML libraries
 # --------------------------
 HAS_PROPHET = False
 HAS_ARIMA = False
@@ -30,20 +30,20 @@ HAS_TF = False
 try:
     from prophet import Prophet
     HAS_PROPHET = True
-except Exception:
+except:
     Prophet = None
 
 try:
     from statsmodels.tsa.arima.model import ARIMA
     HAS_ARIMA = True
-except Exception:
+except:
     ARIMA = None
 
 try:
     from sklearn.ensemble import RandomForestRegressor
     from sklearn.preprocessing import MinMaxScaler
     HAS_SKLEARN = True
-except Exception:
+except:
     RandomForestRegressor = None
     MinMaxScaler = None
 
@@ -52,133 +52,53 @@ try:
     from tensorflow import keras
     from tensorflow.keras import layers
     HAS_TF = True
-except Exception:
+except:
     tf = None
     keras = None
     layers = None
 
 # --------------------------
-# Streamlit page config + CSS (responsive)
+# Streamlit page config + CSS
 # --------------------------
-st.set_page_config(page_title="M1 — SPIDER", layout="wide", initial_sidebar_state="auto")
+st.set_page_config(page_title="M1", layout="wide")
 
-# Custom CSS for dark iOS-like look + mobile responsiveness
-st.markdown(
-    """
-    <style>
-    /* Base dark theme */
-    :root {
-        --bg: #000000;
-        --card: #0B0B0C;
-        --muted: #8E8E93;
-        --accent: #1C1C1E;
-        --border: #222224;
-        --text: #E6E6E6;
-    }
-    body, .stApp {
-        background-color: var(--bg) !important;
-        color: var(--text) !important;
-        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', Roboto, "Helvetica Neue", Arial, sans-serif;
-    }
-    /* central container + mobile max width */
-    .block-container {
-        padding-top: 1rem;
-        padding-bottom: 2rem;
-        max-width: 1150px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    /* Inputs & buttons */
-    .stButton>button, .stDownloadButton>button {
-        background-color: var(--accent) !important;
-        color: var(--text) !important;
-        border-radius: 12px !important;
-        border: 1px solid #2C2C2E !important;
-        padding: 0.7rem 1rem !important;
-        font-size: 1rem !important;
-        min-height: 44px !important; /* touch friendly */
-    }
-    .stSelectbox>div, .stTextInput>div>div>input, .stSlider>div>div, .stNumberInput>div>div>input {
-        background-color: #0F0F10 !important;
-        color: var(--text) !important;
-        border-radius: 10px !important;
-        border: 1px solid var(--border) !important;
-        padding: 0.4rem 0.6rem !important;
-        min-height: 44px !important;
-    }
-    .stCheckbox>div, .stRadio>div, .stMarkdown {
-        color: var(--text) !important;
-    }
-    h1, h2, h3, h4 { color: var(--text) !important; text-align: center; margin: 0.25rem 0 0.6rem 0; }
-
-    .model-availability {
-        background-color: var(--card);
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #202022;
-    }
-
-    /* Responsive layout tweaks */
-    @media (max-width: 900px) {
-        .block-container { padding-left: 1rem; padding-right: 1rem; max-width: 820px; }
-        .stApp .css-1vq4p4l { padding: 0 0 !important; } /* try to reduce extra paddings */
-    }
-    @media (max-width: 600px) {
-        /* stack and enlarge touch targets */
-        .block-container { padding-left: 0.6rem; padding-right: 0.6rem; max-width: 420px; }
-        .stButton>button, .stDownloadButton>button { font-size: 1.05rem !important; padding: 0.85rem 1rem !important; border-radius: 14px !important; }
-        .stSelectbox>div, .stTextInput>div>div>input, .stSlider>div>div { min-height: 52px !important; font-size: 1rem !important; }
-        /* Make metrics wrap nicely */
-        .stMetric > div {
-            min-width: 0 !important;
-        }
-        /* Make Plotly charts take full width and be taller for touch */
-        .element-container .stPlotlyChart > div { height: auto !important; }
-    }
-
-    /* A small helper to center the title area on mobile */
-    .title-wrapper { display:flex; align-items:center; justify-content:center; flex-direction:column; gap:6px; }
-
-    /* Ensure dataframes don't overflow horizontally on small screens */
-    .stDataFrame div[role="table"] { width: 100% !important; overflow-x: auto; }
-
-    /* Improve sidebar styles for dark theme */
-    .css-1d391kg .css-1v0mbdj { background-color: var(--bg) !important; }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+st.markdown("""
+<style>
+body, .stApp {background-color: #000000; color: #E6E6E6; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', Roboto, sans-serif;}
+.block-container {padding-top: 1.5rem; max-width: 1150px; margin-left:auto; margin-right:auto;}
+.stButton>button {background-color: #1C1C1E; color: #E6E6E6; border-radius: 12px; border: 1px solid #2C2C2E; padding: 0.55em 1em;}
+.stTextInput>div>div>input, .stSelectbox>div>div, .stSlider>div>div {background-color: #0F0F10; color: #E6E6E6; border-radius: 10px; border: 1px solid #222224;}
+.stCheckbox>div, .stRadio>div {color: #E6E6E6;}
+h1, h2, h3, h4 {color: #E6E6E6; text-align: center;}
+.model-availability {background-color:#0B0B0C; padding:8px; border-radius:8px; border:1px solid #202022;}
+</style>
+""", unsafe_allow_html=True)
 
 # --------------------------
-# DISCLAIMER GATE (session-safe)
+# Disclaimer Gate
 # --------------------------
-if "disclaimer_accepted" not in st.session_state:
-    st.session_state.disclaimer_accepted = False
+st.markdown("## ⚠️ Disclaimer")
+st.markdown("""
+This application (“the App”) provides stock market data, analysis, and predictive tools for **educational and informational purposes only**.  
 
-st.sidebar.markdown("## ⚠️ Disclaimer")
-st.sidebar.markdown(
-    """
-    This application (“the App”) provides stock market data, analysis, and predictive tools **for educational and informational purposes only**.
-    - The App does **not** provide financial, investment, trading, or legal advice.
-    - All forecasts and analytics are **estimates only** and may be inaccurate or outdated.
-    - Stock market investments are **risky and volatile**. Past performance is not indicative of future results.
-    - Developers and contributors are **not liable** for any financial losses arising from use.
-    By using the App you agree to use it at your own risk. For personalized financial guidance consult a licensed advisor.
-    """
-)
+- The App does **not** provide financial, investment, trading, or legal advice.  
+- All information, forecasts, and analytics generated by the App are **estimates only** and may be inaccurate, incomplete, or outdated.  
+- Stock market investments are inherently **risky and volatile**. Past performance is not indicative of future results.  
+- Users are solely responsible for any investment or trading decisions made based on the App’s content.  
+- The developers, owners, affiliates, and contributors of the App shall **not be held liable** for any financial losses, damages, or consequences arising directly or indirectly from its use.  
 
-# Create an explicit accept button (more mobile-friendly than a tiny checkbox)
-if not st.session_state.disclaimer_accepted:
-    st.sidebar.write("Please accept to continue")
-    if st.sidebar.button("I have read and accept the disclaimer"):
-        st.session_state.disclaimer_accepted = True
-    else:
-        st.sidebar.warning("You must accept the disclaimer to use the app.")
-        st.stop()
+By using the App, you acknowledge that you understand these risks and agree to use the App at your own discretion and responsibility.  
+For personalized financial guidance, please consult a licensed financial advisor.
+""")
+
+accept = st.checkbox(" I have read and accept the disclaimer")
+
+if not accept:
+    st.warning("⚠️ Please accept the disclaimer to use the app.")
+    st.stop()
 
 # --------------------------
-# Utilities (cached)
+# Utilities
 # --------------------------
 @st.cache_data(ttl=300)
 def fetch_yahoo_data(ticker: str, period="6mo", interval="1d") -> pd.DataFrame:
@@ -189,7 +109,6 @@ def fetch_yahoo_data(ticker: str, period="6mo", interval="1d") -> pd.DataFrame:
             return pd.DataFrame()
         df = df.reset_index()
         df['Date'] = pd.to_datetime(df['Date'])
-        # remove timezone if present
         try:
             df['Date'] = df['Date'].dt.tz_localize(None)
         except Exception:
@@ -225,35 +144,24 @@ def compute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def plot_advanced(df: pd.DataFrame, title: str, show_indicators: bool = True):
-    # Use a responsive height: more height on narrow screens for touch
-    layout_height = 620 if st.runtime.exists and st.experimental_get_query_params().get("mobile", [None])[0] else None
-    # Build subplots
     fig = make_subplots(rows=3, cols=1, shared_xaxes=True,
-                        row_heights=[0.62,0.18,0.2],
+                        row_heights=[0.6,0.18,0.22],
                         vertical_spacing=0.03)
     fig.add_trace(go.Candlestick(x=df['Date'], open=df['Open'], high=df['High'],
                                  low=df['Low'], close=df['Close'], name='Price'), row=1, col=1)
     if show_indicators:
-        # show moving averages and bands if present
-        if 'MA20' in df.columns:
-            fig.add_trace(go.Scatter(x=df['Date'], y=df['MA20'], name='MA20', line=dict(width=1.4)), row=1, col=1)
-        if 'MA50' in df.columns:
-            fig.add_trace(go.Scatter(x=df['Date'], y=df['MA50'], name='MA50', line=dict(width=1.4, dash='dash')), row=1, col=1)
-        if 'BB_UP' in df.columns and 'BB_LOW' in df.columns:
-            fig.add_trace(go.Scatter(x=df['Date'], y=df['BB_UP'], name='BB_UP', line=dict(width=1, dash='dot')), row=1, col=1)
-            fig.add_trace(go.Scatter(x=df['Date'], y=df['BB_LOW'], name='BB_LOW', line=dict(width=1, dash='dot')), row=1, col=1)
-    if 'Volume' in df.columns:
-        fig.add_trace(go.Bar(x=df['Date'], y=df['Volume'], name='Volume', marker_color='gray', opacity=0.3), row=2, col=1)
-    if 'RSI' in df.columns:
-        fig.add_trace(go.Scatter(x=df['Date'], y=df['RSI'], name='RSI', line=dict(width=1.2)), row=3, col=1)
-        fig.add_hline(y=70, line_dash='dot', row=3, col=1)
-        fig.add_hline(y=30, line_dash='dot', row=3, col=1)
-
+        fig.add_trace(go.Scatter(x=df['Date'], y=df['MA20'], name='MA20', line=dict(width=1.4)), row=1, col=1)
+        fig.add_trace(go.Scatter(x=df['Date'], y=df['MA50'], name='MA50', line=dict(width=1.4, dash='dash')), row=1, col=1)
+        fig.add_trace(go.Scatter(x=df['Date'], y=df['BB_UP'], name='BB_UP', line=dict(width=1, dash='dot')), row=1, col=1)
+        fig.add_trace(go.Scatter(x=df['Date'], y=df['BB_LOW'], name='BB_LOW', line=dict(width=1, dash='dot')), row=1, col=1)
+    fig.add_trace(go.Bar(x=df['Date'], y=df['Volume'], name='Volume', marker_color='gray', opacity=0.3), row=2, col=1)
+    fig.add_trace(go.Scatter(x=df['Date'], y=df['RSI'], name='RSI', line=dict(width=1.2)), row=3, col=1)
+    fig.add_hline(y=70, line_dash='dot', row=3, col=1)
+    fig.add_hline(y=30, line_dash='dot', row=3, col=1)
     fig.update_layout(template='plotly_dark', title=title,
-                      margin=dict(l=16,r=16,t=36,b=8),
+                      margin=dict(l=20,r=20,t=40,b=10),
                       paper_bgcolor='#000000', plot_bgcolor='#000000',
                       legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1))
-    # Render responsive
     st.plotly_chart(fig, use_container_width=True, theme=None)
 
 # --------------------------
@@ -346,9 +254,9 @@ def forecast_all(df: pd.DataFrame, periods: int = 30):
     return forecasts
 
 # --------------------------
-# MAIN UI (controls in sidebar for mobile friendliness)
+# Main UI
 # --------------------------
-st.markdown('<div class="title-wrapper"><h1>M1 — SPIDER</h1></div>', unsafe_allow_html=True)
+st.title("M1")
 
 tickers_list = [
     "AAPL","MSFT","GOOG","AMZN","TSLA","META","NVDA","JPM","V","JNJ","WMT",
@@ -356,76 +264,55 @@ tickers_list = [
     "BTC-USD","ETH-USD"
 ]
 
-# Controls live in sidebar (mobile collapses into a hamburger automatically)
-st.sidebar.markdown("### Controls")
-ticker = st.sidebar.selectbox("Ticker", tickers_list, index=0)
-period = st.sidebar.selectbox("History period", ["1mo","3mo","6mo","1y","2y","5y","10y","max"], index=2)
-interval = st.sidebar.selectbox("Interval", ["1d","1wk","1mo"], index=0)
-show_indicators = st.sidebar.checkbox("Show Indicators", value=True)
-run = st.sidebar.button("Run All")
+controls = st.columns([2,2,2,2,1])
+with controls[0]:
+    ticker = st.selectbox("Ticker", tickers_list, index=0)
+with controls[1]:
+    period = st.selectbox("History period", ["1mo","3mo","6mo","1y","2y","5y","10y","max"], index=2)
+with controls[2]:
+    interval = st.selectbox("Interval", ["1d","1wk","1mo"], index=0)
+with controls[3]:
+    show_indicators = st.checkbox("Show Indicators", value=True)
+with controls[4]:
+    run = st.button("Run All")
 
 st.markdown("---")
 
 if run:
-    with st.spinner("Fetching data and computing indicators..."):
-        df = fetch_yahoo_data(ticker, period, interval)
+    df = fetch_yahoo_data(ticker, period, interval)
     if df.empty:
         st.error("No data retrieved. Check ticker or network.")
         st.stop()
-
-    # compute indicators
     df = compute_indicators(df)
 
-    # Top metrics (responsive)
     last = df.iloc[-1]
-    # Use columns but allow natural wrapping on mobile: set max column count
-    metric_cols = st.columns(5)
-    metric_cols[0].metric("Date", str(pd.to_datetime(last['Date']).date()))
-    metric_cols[1].metric("Open", f"{last['Open']:.2f}")
-    metric_cols[2].metric("High", f"{last['High']:.2f}")
-    metric_cols[3].metric("Low", f"{last['Low']:.2f}")
-    metric_cols[4].metric("Close", f"{last['Close']:.2f}")
+    cols = st.columns([1,1,1,1,1])
+    with cols[0]: st.metric("Date", str(pd.to_datetime(last['Date']).date()))
+    with cols[1]: st.metric("Open", f"{last['Open']:.2f}")
+    with cols[2]: st.metric("High", f"{last['High']:.2f}")
+    with cols[3]: st.metric("Low", f"{last['Low']:.2f}")
+    with cols[4]: st.metric("Close", f"{last['Close']:.2f}")
 
-    # Main chart
     plot_advanced(df, f"{ticker} — Price & Indicators", show_indicators)
 
-    # Downloads + raw data
-    with st.expander("Raw data & downloads", expanded=False):
-        st.download_button("Download raw data (CSV)", df.to_csv(index=False), file_name=f"{ticker}_raw.csv", mime="text/csv")
-        st.dataframe(df.tail(200), use_container_width=True)
+    st.download_button("Download raw data (CSV)", df.to_csv(index=False), file_name=f"{ticker}_raw.csv", mime="text/csv")
 
-    # Forecasts
     st.subheader("FORECASTS")
     forecasts = forecast_all(df, periods=30)
-    if not forecasts:
-        st.info("No forecasting models available in this environment (Prophet/ARIMA/scikit-learn/TensorFlow missing).")
-    else:
-        for model_name, fc in forecasts.items():
-            st.markdown(f"### {model_name}")
-            # If Prophet with bounds, show bounds
-            st.dataframe(fc, use_container_width=True)
-            st.download_button(f"Download {model_name} forecast CSV", fc.to_csv(index=False), file_name=f"{ticker}_{model_name}.csv", mime="text/csv")
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df['Date'], y=df['Close'], name='Historical'))
-            fig.add_trace(go.Scatter(x=fc['Date'], y=fc['yhat'], name=f'{model_name} Forecast'))
-            if model_name == "Prophet" and 'yhat_lower' in fc.columns and 'yhat_upper' in fc.columns:
-                fig.add_trace(go.Scatter(x=fc['Date'], y=fc['yhat_lower'], name='Lower Bound', line=dict(dash='dot')))
-                fig.add_trace(go.Scatter(x=fc['Date'], y=fc['yhat_upper'], name='Upper Bound', line=dict(dash='dot')))
-            st.plotly_chart(fig, use_container_width=True, theme=None)
+    for model_name, fc in forecasts.items():
+        st.markdown(f"### {model_name}")
+        st.dataframe(fc)
+        st.download_button(f"Download {model_name} forecast CSV", fc.to_csv(index=False), file_name=f"{ticker}_{model_name}.csv", mime="text/csv")
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=df['Date'], y=df['Close'], name='Historical'))
+        fig.add_trace(go.Scatter(x=fc['Date'], y=fc['yhat'], name=f'{model_name} Forecast'))
+        if model_name == "Prophet" and 'yhat_lower' in fc.columns and 'yhat_upper' in fc.columns:
+            fig.add_trace(go.Scatter(x=fc['Date'], y=fc['yhat_lower'], name='Lower Bound', line=dict(dash='dot')))
+            fig.add_trace(go.Scatter(x=fc['Date'], y=fc['yhat_upper'], name='Upper Bound', line=dict(dash='dot')))
+        st.plotly_chart(fig, use_container_width=True, theme=None)
 
     st.markdown("---")
     st.subheader("Recent data (tail)")
     st.dataframe(df.tail(50), use_container_width=True)
-
 else:
-    st.info("Select a ticker and hit 'Run All' in the sidebar to fetch data and forecasts.")
-
-# Footer small credits
-st.markdown(
-    """
-    <div style="text-align:center; margin-top:14px; color:#8E8E93; font-size:12px">
-      SPIDER • Mobile-responsive Streamlit app — data from Yahoo Finance
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+    st.info("Select ticker and press 'Run All' to fetch data and forecasts.")
