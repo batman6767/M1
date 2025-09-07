@@ -60,7 +60,7 @@ except:
 # --------------------------
 # Streamlit page config + CSS
 # --------------------------
-st.set_page_config(page_title="SPIDER", layout="wide")
+st.set_page_config(page_title="M1", layout="wide")
 
 st.markdown("""
 <style>
